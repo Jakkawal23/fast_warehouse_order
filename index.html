@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Order System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800" data-i18n="title">ระบบเปิดบิลด่วน</h1>
+            <select id="langSelect" class="p-2 border rounded shadow-sm">
+                <option value="th">ไทย</option>
+                <option value="cn">中文</option>
+                <option value="en">English</option>
+                <option value="my">မြန်မာ</option>
+            </select>
+        </header>
+
+        <div class="flex justify-end mb-6">
+            <button onclick="toggleModal(true)" class="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition duration-200">
+                <i class="fas fa-plus mr-1"></i> <span data-i18n="add">เพิ่มรายการ</span>
+            </button>
+        </div>
+
+        <div id="cardContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <button onclick="downloadPDF()" class="mt-8 w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition duration-200 shadow-md">
+            <i class="fas fa-file-pdf mr-1"></i> <span data-i18n="exportPdf">Export PDF</span>
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl my-8">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800" data-i18n="modalTitleAdd">เพิ่มสินค้า</h2>
+            <input type="hidden" id="editIndex">
+            
+            <input type="text" id="itemName" data-i18n-placeholder="phName" placeholder="ชื่อสินค้า (Product Name)" class="w-full p-2 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="itemModel" data-i18n-placeholder="phModel" placeholder="รุ่น (Model)" class="w-full p-2 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="itemQty" data-i18n-placeholder="phQty" placeholder="จำนวน (Qty)" class="w-full p-2 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="itemNote" data-i18n-placeholder="phNote" placeholder="หมายเหตุ (Note)" class="w-full p-2 border border-gray-300 rounded mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="images">รูปภาพ (Images)</label>
+            
+            <div class="flex gap-2 mb-4">
+                <button type="button" onclick="document.getElementById('cameraInput').click()" class="flex-1 bg-gray-50 text-gray-700 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition flex items-center justify-center gap-2 font-medium">
+                    <i class="fas fa-camera text-blue-500"></i> <span data-i18n="takePhoto">ถ่ายรูป</span>
+                </button>
+                <button type="button" onclick="document.getElementById('galleryInput').click()" class="flex-1 bg-gray-50 text-gray-700 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition flex items-center justify-center gap-2 font-medium">
+                    <i class="fas fa-images text-green-500"></i> <span data-i18n="gallery">คลังรูป</span>
+                </button>
+            </div>
+            
+            <!-- ซ่อน Input File ของจริงเอาไว้ -->
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelection(this)">
+            <input type="file" id="galleryInput" accept="image/*" multiple class="hidden" onchange="handleImageSelection(this)">
+            
+            <div id="modalImagesContainer" class="flex flex-wrap gap-3 mb-4"></div>
+            
+            <div class="flex gap-3 mt-4 border-t pt-4">
+                <button onclick="saveItem()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 font-medium shadow-md" data-i18n="save">บันทึก</button>
+                <button onclick="toggleModal(false)" class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition duration-200 font-medium shadow-sm" type="button" data-i18n="cancel">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewerModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[60]" onclick="closeImageViewer()">
+        <img id="viewerImage" src="" class="max-w-full max-h-full object-contain shadow-2xl rounded">
+        <button class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 p-2" type="button" onclick="closeImageViewer()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Hidden area for PDF generation -->
+    <div id="printArea" class="hidden"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
